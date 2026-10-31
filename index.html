@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Mood Board</title>
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;cursor:pointer}
 html{overflow-x:hidden}
 body{margin:0;min-height:100vh;padding:28px 14px;
   background:#2b2220 repeating-linear-gradient(45deg,#2f2523 0 6px,#2b2220 6px 12px);
@@ -17,8 +17,8 @@ body{margin:0;min-height:100vh;padding:28px 14px;
   background:var(--paper,#fff27a);box-shadow:0 1px 1px rgba(0,0,0,.15),0 10px 18px -8px rgba(0,0,0,.55);
   transform:rotate(var(--tilt,0deg));transform-origin:50% 0}
 .note::before{content:"";position:absolute;inset:0 0 auto;height:22px;background:rgba(0,0,0,.06)} /* adhesive strip */
-.note img{display:block;width:100%;height:auto;cursor:zoom-in;background:#222}
-.x{all:unset;position:absolute;top:-9px;right:-9px;width:26px;height:26px;border-radius:50%;cursor:pointer;z-index:2;
+.note img{display:block;width:100%;height:auto;background:#222}
+.x{all:unset;position:absolute;top:-9px;right:-9px;width:26px;height:26px;border-radius:50%;z-index:2;
   display:grid;place-items:center;font:700 15px/1 system-ui,sans-serif;color:#fff;background:#b02c26;
   box-shadow:0 2px 4px rgba(0,0,0,.45)}
 .x:focus-visible{outline:2px solid #fff;outline-offset:2px}
