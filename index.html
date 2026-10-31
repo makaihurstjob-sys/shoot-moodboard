@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mood Board | Alton x A$AP Shoot</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:start center;padding:28px 14px;
+  background:#2b2220 repeating-linear-gradient(45deg,#2f2523 0 6px,#2b2220 6px 12px);
+  font:14px "Lucida Grande","Segoe UI",Tahoma,sans-serif;color:#222}
+/* the window */
+.win{width:min(980px,100%);background:#dcdcdc;border:1px solid #6f6f6f;border-radius:8px 8px 4px 4px;
+  box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 #fff;overflow:hidden}
+.titlebar{position:relative;height:30px;display:flex;align-items:center;justify-content:center;
+  background:repeating-linear-gradient(#f4f4f4 0 1px,#d2d2d2 1px 3px);border-bottom:1px solid #8a8a8a}
+.titlebar h1{margin:0;padding:0 12px;font-size:14px;font-weight:600;background:#e6e6e6;letter-spacing:.02em}
+.dots{position:absolute;left:10px;display:flex;gap:6px}
+.dots i{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.35)}
+.dots i:nth-child(1){background:#ff5f57}.dots i:nth-child(2){background:#febc2e}.dots i:nth-child(3){background:#28c840}
+.chrome{margin:10px;border:1px solid #9c9c9c;border-radius:6px;overflow:hidden;background:#fff}
+/* header card */
+.brief{padding:18px 18px 6px;border-bottom:1px solid #e2e2e2;background:linear-gradient(#fffdf6,#f6f1e4)}
+.brief h2{margin:0 0 4px;font:700 22px Georgia,"Times New Roman",serif;color:#b02c26;letter-spacing:.01em}
+.brief p{margin:0 0 12px;color:#555;line-height:1.45}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#333;border-radius:10px;padding:2px 9px}
+.chip.red{background:#b02c26}
+/* tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:10px 14px;background:#ececec;border-bottom:1px solid #c9c9c9;position:sticky;top:0;z-index:2}
+.tab{all:unset;cursor:pointer;font-size:12px;padding:4px 10px;border:1px solid #b7b7b7;border-radius:12px;
+  background:linear-gradient(#fdfdfd,#e3e3e3)}
+.tab[aria-pressed=true]{background:linear-gradient(#6f97e0,#3b6fd8);color:#fff;border-color:#2f5bb5}
+.tab:focus-visible{outline:2px solid #3b6fd8;outline-offset:2px}
+/* sections */
+section{padding:16px 18px 6px}
+section h3{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:0 0 4px;font:700 16px Georgia,serif}
+section h3 small{font:12px "Lucida Grande","Segoe UI",sans-serif;color:#888}
+section .note{margin:0 0 10px;color:#666;font-size:13px}
+.pins{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pins a{font-size:12px;color:#b02c26;text-decoration:none;border:1px dashed #d4a29f;border-radius:4px;padding:2px 7px;background:#fff8f7}
+.pins a:hover{background:#b02c26;color:#fff}
+/* polaroid grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;padding:4px 2px 16px}
+.pola{all:unset;cursor:zoom-in;display:block;background:#fbfbf7;padding:8px 8px 26px;border:1px solid #d8d8d0;
+  box-shadow:0 3px 8px rgba(0,0,0,.18);position:relative;transition:transform .12s}
+.pola:nth-child(3n){transform:rotate(-1.5deg)}.pola:nth-child(3n+1){transform:rotate(1deg)}
+.pola:hover,.pola:focus-visible{transform:rotate(0) scale(1.03);z-index:1}
+.pola:focus-visible{outline:2px solid #3b6fd8}
+.pola::before{content:"";position:absolute;top:-8px;left:50%;width:54px;height:16px;margin-left:-27px;
+  background:rgba(240,215,130,.75);transform:rotate(-3deg)}
+.pola img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#222;filter:contrast(1.04) saturate(.92)}
+.pola span{position:absolute;left:8px;right:8px;bottom:5px;font:13px "Marker Felt","Comic Sans MS",cursive;color:#444;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.empty{grid-column:1/-1;padding:18px;text-align:center;color:#999;border:2px dashed #ddd;border-radius:6px;font-size:13px}
+.status{padding:10px 18px 16px;color:#999;font-size:12px;text-align:center}
+/* lightbox */
+.stage{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:10;place-items:center;padding:20px}
+.stage.on{display:grid}
+.stage img{max-width:100%;max-height:86vh;object-fit:contain;box-shadow:0 10px 40px #000}
+.stage p{color:#ddd;text-align:center;margin:10px 0 0}
+.close{position:absolute;top:14px;right:14px;font:600 14px system-ui;color:#fff;background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.4);border-radius:18px;padding:7px 14px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="win" role="application" aria-label="Shoot mood board">
+  <div class="titlebar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><h1>Mood Board &mdash; Alton x A$AP Shoot</h1></div>
+  <div class="chrome">
+    <div class="brief">
+      <h2>Concept: Runway energy, 2010s Harlem night</h2>
+      <p>Alton Mason's movement and high-fashion posture, shot like a 2013 A$AP Mob flick: direct flash, fisheye, low angles, after-dark Huntsville. For Instagram.</p>
+      <div class="chips"><span class="chip red">Pre-production</span><span class="chip">Huntsville, AL</span><span class="chip">Night / direct flash</span><span class="chip">Crew: Makai, Jayden, Jonny?</span></div>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+    <div id="board"></div>
+    <div class="status" id="status">Loading photos&hellip;</div>
+  </div>
+</div>
+<div class="stage" id="stage" role="dialog" aria-modal="true"><div><img id="big" alt=""><p id="cap"></p></div><button class="close" id="close" type="button">Close &times;</button></div>
+<script>
+// One section per folder in photos/. To add a photo, upload it into that folder on GitHub.
+// The file name becomes the caption: "alton-flip-lv-show.jpg" -> "alton flip lv show".
+const REPO = 'makaihurstjob-sys/shoot-moodboard';
+const pin = q => 'https://www.pinterest.com/search/pins/?q=' + encodeURIComponent(q);
+const SECTIONS = [
+  {dir: '01-alton-mason', title: 'Alton Mason', note: 'The model ref. Movement, posture, how he owns the frame.',
+   search: ['alton mason photoshoot', 'alton mason editorial', 'alton mason runway jump', 'alton mason pose']},
+  {dir: '02-asap-2010s', title: '2010s A$AP', note: 'The era. Harlem, Mob crew shots, 2012-2015 street fashion.',
+   search: ['asap mob 2013', 'asap rocky 2012 photoshoot', 'asap rocky flash photography', '2010s streetwear editorial']},
+  {dir: '03-lighting', title: 'Lighting', note: 'Direct flash at night. Hard shadows, shiny skin, black backgrounds.',
+   search: ['direct flash night portrait', 'flash photography streetwear night', 'red light portrait night', 'blue hour streetwear portrait']},
+  {dir: '04-poses', title: 'Poses', note: 'Solo and crew. Low angle, close to lens, in motion.',
+   search: ['group photoshoot poses streetwear', 'fisheye portrait low angle', 'model jump photoshoot street', 'crew photoshoot poses men']},
+  {dir: '05-fits', title: 'Fits', note: 'All black layers, long tees, bucket hats, chains, stacked denim.',
+   search: ['asap rocky 2013 outfit', 'all black streetwear layering', 'rick owens streetwear fit', 'bucket hat outfit 2010s']},
+  {dir: '06-locations', title: 'Locations', note: 'Huntsville night spots: garages, gas stations, downtown bridges, murals.',
+   search: ['parking garage photoshoot night', 'gas station photoshoot flash', 'rooftop city lights photoshoot', 'alley night photoshoot']},
+  {dir: '07-edits', title: 'Edits / Color', note: 'Grain, crushed blacks, warm flash skin, a little purple.',
+   search: ['film grain flash edit', '2010s tumblr photo aesthetic', 'purple night photo edit', 'disposable camera flash aesthetic']},
+];
+const IMG = /\.(jpe?g|png|gif|webp|avif)$/i;
+const board = document.getElementById('board'), tabs = document.getElementById('tabs'), statusEl = document.getElementById('status');
+const stage = document.getElementById('stage'), big = document.getElementById('big'), cap = document.getElementById('cap');
+const caption = n => n.replace(/\.[^.]+$/, '').replace(/^\d+[-_ ]*/, '').replace(/[-_]+/g, ' ');
+
+function open(src, text) { big.src = src; big.alt = text; cap.textContent = text; stage.classList.add('on'); }
+function close() { stage.classList.remove('on'); big.removeAttribute('src'); }
+document.getElementById('close').onclick = close;
+stage.onclick = e => { if (e.target === stage) close(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+function filter(dir) {
+  for (const b of tabs.children) b.setAttribute('aria-pressed', b.dataset.dir === dir);
+  for (const s of board.children) s.hidden = dir !== 'all' && s.dataset.dir !== dir;
+}
+for (const [dir, label] of [['all', 'All'], ...SECTIONS.map(s => [s.dir, s.title])]) {
+  const b = Object.assign(document.createElement('button'), {className: 'tab', type: 'button', textContent: label});
+  b.dataset.dir = dir; b.onclick = () => filter(dir);
+  tabs.append(b);
+}
+
+async function photosIn(dir) {
+  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/photos/${dir}`);
+  if (!r.ok) throw new Error(r.status);
+  return (await r.json()).filter(f => IMG.test(f.name)).map(f => f.name).sort();
+}
+
+(async () => {
+  let total = 0, failed = false;
+  for (const s of SECTIONS) {
+    const sec = document.createElement('section'); sec.dataset.dir = s.dir;
+    sec.innerHTML = `<h3></h3><p class="note"></p><div class="pins"></div><div class="grid"></div>`;
+    sec.querySelector('.note').textContent = s.note;
+    const pins = sec.querySelector('.pins'), grid = sec.querySelector('.grid');
+    for (const q of s.search) pins.append(Object.assign(document.createElement('a'), {href: pin(q), target: '_blank', rel: 'noopener', textContent: '📌 ' + q}));
+    let names = [];
+    try { names = await photosIn(s.dir); } catch { failed = true; }
+    total += names.length;
+    sec.querySelector('h3').append(s.title, Object.assign(document.createElement('small'), {textContent: names.length + (names.length === 1 ? ' photo' : ' photos')}));
+    for (const n of names) {
+      const src = `photos/${s.dir}/${encodeURIComponent(n)}`, text = caption(n);
+      const b = Object.assign(document.createElement('button'), {className: 'pola', type: 'button'});
+      b.setAttribute('aria-label', 'Open ' + text);
+      b.append(Object.assign(document.createElement('img'), {src, alt: '', loading: 'lazy'}), Object.assign(document.createElement('span'), {textContent: text}));
+      b.onclick = () => open(src, text);
+      grid.append(b);
+    }
+    if (!names.length) grid.append(Object.assign(document.createElement('div'), {className: 'empty', textContent: 'Nothing pinned yet. Upload to photos/' + s.dir + ' on GitHub.'}));
+    board.append(sec);
+  }
+  filter('all');
+  statusEl.textContent = failed ? 'Couldn\'t reach GitHub for every section. Refresh in a minute.' : total + ' photos on the board';
+})();
+</script>
+</body>
+</html>
