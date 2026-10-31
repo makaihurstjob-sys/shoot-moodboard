@@ -1,10 +1,11 @@
 # Shoot Mood Board
 
-Sticky-note mood board for the Alton Mason x 2010s A$AP Instagram shoot (Huntsville).
+Sticky-note mood board and plan for the Alton Mason x 2010s A$AP Instagram shoot (Huntsville).
 
 Live: https://makaihurstjob-sys.github.io/shoot-moodboard/
 
-## Add a photo
-On GitHub (phone works): open `photos/` → **Add file → Upload files** → commit. It shows up as a sticky note within about a minute.
+- **Board**: tap 🔥 / 👎 on a note to vote, 💬 or the photo to comment. Red × rips it off (only on your device).
+- **Plan**: shared lists for date, crew, locations, shot list, fits, gear, budget (with total) and to-dos.
+- **+ Add**: upload pics from your phone or paste a Pinterest link. Everyone sees them.
 
-Tap the red × to rip a note off. Ripped notes stay gone on that device.
+Shared data lives in the Supabase project "Shoot Moodboard" (tables `pins`, `reactions`, `comments`, `plan_items`; bucket `pins`; edge function `resolve-pin`). Photos committed to `photos/` also show on the board.

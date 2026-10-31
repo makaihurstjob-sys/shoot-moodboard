@@ -8,11 +8,23 @@
 <style>
 *{box-sizing:border-box;cursor:pointer}
 html{overflow-x:hidden}
-body{margin:0;min-height:100vh;padding:28px 14px;
+body{margin:0;min-height:100vh;padding:0 14px 40px;
   background:#2b2220 repeating-linear-gradient(45deg,#2f2523 0 6px,#2b2220 6px 12px);
   font:14px "Lucida Grande","Segoe UI",Tahoma,sans-serif;color:#222}
+input,textarea{cursor:text;font:inherit}
+button{font:inherit}
+/* top bar: two paper tabs, add button, your name */
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:flex-end;gap:8px;max-width:1200px;margin:0 auto 26px;padding:12px 0 0;
+  background:linear-gradient(#2b2220 70%,transparent)}
+.tab{all:unset;padding:8px 16px 6px;background:#e9dfc7;color:#5a4a3a;border-radius:4px 4px 0 0;font:700 15px "Marker Felt","Comic Sans MS",cursive;
+  box-shadow:0 -1px 3px rgba(0,0,0,.3);transform:translateY(4px)}
+.tab[aria-selected=true]{background:#fff27a;color:#222;transform:none}
+.tab:focus-visible,.chip:focus-visible{outline:2px solid #fff}
+.spacer{flex:1}
+.chip{all:unset;padding:6px 12px;border-radius:14px;background:#b02c26;color:#fff;font-weight:600;font-size:13px;margin-bottom:4px}
+.chip.ghost{background:transparent;border:1px solid #8a7a72;color:#d8c9c0}
 /* sticky notes, laid out like a pinned-up wall */
-.wall{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:30px 26px}
+.wall{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:34px 26px}
 /* a square Post-it: sticky strip on top, paper darkening toward the bottom where it lifts off the wall, curled bottom-right corner */
 .note{width:210px;aspect-ratio:1;position:relative;margin:0;padding:24px 14px 16px;
   background:linear-gradient(176deg,var(--paper,#fff27a) 0 55%,color-mix(in srgb,var(--paper,#fff27a) 82%,#6b4a00) 100%);
@@ -27,6 +39,12 @@ body{margin:0;min-height:100vh;padding:28px 14px;
   display:grid;place-items:center;font:700 15px/1 system-ui,sans-serif;color:#fff;background:#b02c26;
   box-shadow:0 2px 4px rgba(0,0,0,.45)}
 .x:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* feedback stamps along the bottom edge of each note */
+.stamps{position:absolute;left:10px;bottom:-13px;display:flex;gap:5px;z-index:2}
+.stamp{all:unset;padding:2px 7px;border-radius:10px;background:#fffdf5;color:#333;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.stamp.mine{background:#222;color:#fff}
+.stamp:focus-visible{outline:2px solid #3b6fd8}
+.new{position:absolute;top:2px;left:10px;font:11px "Marker Felt","Comic Sans MS",cursive;color:#b02c26}
 /* the rip: corner lifts, peels off, falls away */
 .note.rip{animation:rip .55s cubic-bezier(.5,0,.9,.4) forwards;transform-origin:0 0;pointer-events:none}
 @keyframes rip{
@@ -34,61 +52,333 @@ body{margin:0;min-height:100vh;padding:28px 14px;
   25%{transform:rotate(-8deg) translate(6px,-10px) skewX(-4deg)}
   100%{transform:rotate(38deg) translate(80px,110vh);opacity:0}}
 .empty{color:#a89590;text-align:center;margin-top:30vh}
-/* full-size view */
-.stage{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:10;place-items:center;padding:20px}
-.stage.on{display:grid}
-.stage img{max-width:100%;max-height:90vh;object-fit:contain}
+/* plan: one big sticky note per section */
+.plan{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:30px 26px}
+.sheet{width:min(330px,100%);position:relative;padding:30px 16px 18px;background:var(--paper);border-bottom-right-radius:90px 8px;
+  background-image:linear-gradient(176deg,transparent 55%,rgba(107,74,0,.12)),repeating-linear-gradient(transparent 0 27px,rgba(60,90,160,.18) 27px 28px);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.25)) drop-shadow(3px 12px 8px rgba(0,0,0,.4));transform:rotate(var(--tilt))}
+.sheet h2{margin:0 0 6px;font:700 20px "Marker Felt","Comic Sans MS",cursive}
+.sheet ul{list-style:none;margin:0;padding:0}
+.sheet li{display:flex;align-items:flex-start;gap:8px;min-height:28px;padding:4px 0;font:15px/20px "Marker Felt","Comic Sans MS",cursive}
+.sheet li.done span{text-decoration:line-through;opacity:.55}
+.sheet li span{flex:1;word-break:break-word}
+.sheet li small{font:11px "Lucida Grande",sans-serif;color:#7a6a55}
+.sheet li .amt{font-weight:700}
+.sheet input[type=checkbox]{margin-top:3px;width:16px;height:16px;cursor:pointer}
+.del{all:unset;color:#b02c26;font-weight:700;padding:0 4px;opacity:.6}
+.del:hover{opacity:1}
+.addrow{display:flex;gap:6px;margin-top:8px}
+.addrow input{flex:1;min-width:0;border:0;border-bottom:1px dashed #8a7a5a;background:transparent;padding:4px 2px;font:15px "Marker Felt","Comic Sans MS",cursive}
+.addrow input.money{flex:0 0 64px}
+.addrow button{all:unset;padding:2px 10px;border-radius:10px;background:#222;color:#fff;font-size:13px}
+.total{margin-top:8px;text-align:right;font:700 16px "Marker Felt","Comic Sans MS",cursive}
+/* full-size view with votes and comments */
+.stage{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:10;overflow:auto;padding:20px}
+.stage.on{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:20px}
+.stage img{max-width:min(100%,700px);max-height:86vh;object-fit:contain;cursor:zoom-out}
+.talk{width:min(330px,100%);background:#fff27a;padding:16px;border-bottom-right-radius:80px 8px;font:15px "Marker Felt","Comic Sans MS",cursive}
+.talk h3{margin:0 0 8px;font-size:17px}
+.talk .votes{display:flex;gap:8px;margin-bottom:10px}
+.talk .votes .stamp{font-size:14px;padding:4px 10px}
+.talk .who{font-size:12px;color:#5a4a3a;margin:-4px 0 10px}
+.talk ol{list-style:none;margin:0 0 10px;padding:0;max-height:40vh;overflow:auto}
+.talk li{padding:5px 0;border-bottom:1px dashed rgba(0,0,0,.15)}
+.talk li b{margin-right:4px}
+.talk textarea{width:100%;min-height:54px;border:1px dashed #8a7a5a;background:rgba(255,255,255,.5);padding:6px;border-radius:4px}
+.close{position:fixed;top:14px;right:14px;z-index:11;font:600 14px system-ui;color:#fff;background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.4);border-radius:18px;padding:7px 14px}
+/* small paper dialogs: name, add */
+dialog{border:0;padding:20px;width:min(360px,92vw);background:#fff27a;border-bottom-right-radius:80px 8px;
+  box-shadow:0 20px 50px rgba(0,0,0,.6);font:15px "Marker Felt","Comic Sans MS",cursive}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h3{margin:0 0 10px}
+dialog input[type=text],dialog input[type=url]{width:100%;padding:8px;border:1px dashed #8a7a5a;background:rgba(255,255,255,.6);border-radius:4px}
+dialog .row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+dialog .btn{all:unset;padding:7px 14px;border-radius:14px;background:#222;color:#fff;font:600 13px "Lucida Grande",sans-serif}
+dialog .btn.light{background:transparent;color:#222;border:1px solid #222}
+dialog .msg{min-height:18px;margin-top:8px;font:12px "Lucida Grande",sans-serif;color:#7a2a20}
+dialog hr{border:0;border-top:1px dashed #8a7a5a;margin:14px 0}
+[hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){.note.rip{animation-duration:.01s}}
 </style>
 </head>
 <body>
+<nav class="bar" role="tablist">
+  <button class="tab" role="tab" id="tab-board" aria-selected="true" type="button">Board</button>
+  <button class="tab" role="tab" id="tab-plan" aria-selected="false" type="button">Plan</button>
+  <span class="spacer"></span>
+  <button class="chip ghost" id="me" type="button"></button>
+  <button class="chip" id="add" type="button">+ Add</button>
+</nav>
 <main class="wall" id="wall"></main>
-<div class="stage" id="stage" role="dialog" aria-modal="true" aria-label="Photo"><img id="big" alt=""></div>
+<main class="plan" id="plan" hidden></main>
+
+<div class="stage" id="stage" role="dialog" aria-modal="true" aria-label="Photo">
+  <img id="big" alt="">
+  <section class="talk" id="talk">
+    <h3>What we think</h3>
+    <div class="votes" id="votes"></div>
+    <div class="who" id="who"></div>
+    <ol id="comments"></ol>
+    <textarea id="say" placeholder="Leave a note… (Enter to post)"></textarea>
+  </section>
+  <button class="close" id="close" type="button">Close &times;</button>
+</div>
+
+<dialog id="nameDlg">
+  <h3>Who's this?</h3>
+  <input type="text" id="nameIn" maxlength="40" placeholder="Your name" autocomplete="given-name">
+  <div class="row"><button class="btn" id="nameOk" type="button">That's me</button></div>
+</dialog>
+
+<dialog id="addDlg">
+  <h3>Add to the board</h3>
+  <button class="btn" id="pick" type="button">Upload photos</button>
+  <input type="file" id="files" accept="image/*" multiple hidden>
+  <hr>
+  <input type="url" id="link" placeholder="Paste a Pinterest link">
+  <div class="row"><button class="btn" id="linkOk" type="button">Add link</button><button class="btn light" id="addClose" type="button">Done</button></div>
+  <div class="msg" id="addMsg" role="status"></div>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Every image in photos/ becomes a sticky note. Upload a file there on GitHub to add one.
-// Ripped-off notes are remembered on this device.
+// Photos come from two places: images committed to photos/ in the repo, and pins added from the page (stored in Supabase).
+// Votes, comments and the plan are shared through Supabase. Ripping a note off only hides it on this device.
 const REPO = 'makaihurstjob-sys/shoot-moodboard';
+const SB_URL = 'https://ulznssrntgvftqbqattu.supabase.co';
+// Public anon key (safe to ship; row-level security decides what it can do). The JWT form is needed for the edge function.
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsem5zc3JudGd2ZnRxYnFhdHR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzOTUxOTUsImV4cCI6MjEwODk3MTE5NX0.ZnCOnTXw0_-xstMHFel59qQQZO2t3RGi9MiBmvVuxKM';
+const db = supabase.createClient(SB_URL, SB_KEY);
 const IMG = /\.(jpe?g|png|gif|webp|avif)$/i;
 const PAPER = ['#fff27a', '#ffd1e0', '#c9f2c2', '#cfe6ff', '#ffd9a8'];
-const KEY = 'moodboard-ripped';
-const ripped = new Set(JSON.parse(localStorage.getItem(KEY) || '[]'));
-const wall = document.getElementById('wall'), stage = document.getElementById('stage'), big = document.getElementById('big');
+const SECTIONS = [
+  ['when', 'Date & time'], ['crew', 'Crew & roles'], ['locations', 'Locations'], ['shots', 'Shot list'],
+  ['fits', 'Fits'], ['gear', 'Gear'], ['budget', 'Budget'], ['todo', 'To-do'],
+];
+const RIP_KEY = 'moodboard-ripped', NAME_KEY = 'moodboard-name', SEEN_KEY = 'moodboard-seen';
+const ripped = new Set(JSON.parse(localStorage.getItem(RIP_KEY) || '[]'));
+const $ = id => document.getElementById(id);
+const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
+const tilt = i => ((i * 37 % 7) - 3) + 'deg';
 
-stage.onclick = () => { stage.classList.remove('on'); big.removeAttribute('src'); };
-document.addEventListener('keydown', e => { if (e.key === 'Escape') stage.onclick(); });
+let photos = [], reactions = [], comments = [], plan = [], open = null;
+let lastSeen = localStorage.getItem(SEEN_KEY) || new Date().toISOString();
 
-function rip(note, name) {
-  ripped.add(name); localStorage.setItem(KEY, JSON.stringify([...ripped]));
+/* ---------- who's using it ---------- */
+let me = localStorage.getItem(NAME_KEY) || '';
+const showMe = () => { $('me').textContent = me ? '✎ ' + me : 'Set name'; };
+function needName() {
+  if (me) return Promise.resolve(me);
+  return new Promise(res => {
+    const dlg = $('nameDlg');
+    const ok = () => { const v = $('nameIn').value.trim().slice(0, 40); if (!v) return;
+      me = v; localStorage.setItem(NAME_KEY, me); showMe(); dlg.close(); res(me); };
+    $('nameOk').onclick = ok; $('nameIn').onkeydown = e => { if (e.key === 'Enter') ok(); };
+    $('nameIn').value = me; dlg.showModal();
+  });
+}
+$('me').onclick = () => {
+  const old = me; me = '';
+  $('nameDlg').addEventListener('close', () => { if (!me) { me = old; showMe(); } }, {once: true});
+  needName();
+};
+showMe();
+
+/* ---------- tabs ---------- */
+function show(which) {
+  $('tab-board').setAttribute('aria-selected', which === 'board'); $('tab-plan').setAttribute('aria-selected', which === 'plan');
+  $('wall').hidden = which !== 'board'; $('plan').hidden = which !== 'plan';
+  history.replaceState(null, '', which === 'plan' ? '#plan' : location.pathname);
+}
+$('tab-board').onclick = () => show('board');
+$('tab-plan').onclick = () => show('plan');
+
+/* ---------- loading ---------- */
+async function loadPhotos() {
+  let repo = [];
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/photos`);
+    if (r.ok) repo = (await r.json()).filter(f => IMG.test(f.name)).map(f => f.name).sort()
+      .map(n => ({key: n, src: 'photos/' + encodeURIComponent(n)}));
+  } catch {}
+  const {data} = await db.from('pins').select('src,added_by,created_at').order('created_at', {ascending: false});
+  const added = (data || []).map(p => ({key: p.src, src: p.src, by: p.added_by, at: p.created_at}));
+  photos = [...added, ...repo];
+}
+async function loadFeedback() {
+  const [r, c] = await Promise.all([
+    db.from('reactions').select('pin_src,who,kind'),
+    db.from('comments').select('pin_src,who,body,created_at').order('created_at'),
+  ]);
+  reactions = r.data || []; comments = c.data || [];
+}
+async function loadPlan() {
+  const {data} = await db.from('plan_items').select('*').order('created_at');
+  plan = data || [];
+}
+
+/* ---------- board ---------- */
+const votesFor = src => reactions.filter(r => r.pin_src === src);
+const talkFor = src => comments.filter(c => c.pin_src === src);
+
+function stampRow(p) {
+  const v = votesFor(p.src), mine = v.find(r => r.who === me)?.kind;
+  const fire = v.filter(r => r.kind === 'fire').length, nah = v.filter(r => r.kind === 'nah').length, says = talkFor(p.src).length;
+  const s = (label, kind) => { const b = el('button', {type: 'button', className: 'stamp' + (mine === kind ? ' mine' : ''), textContent: label});
+    b.onclick = e => { e.stopPropagation(); vote(p.src, kind); }; return b; };
+  const talk = el('button', {type: 'button', className: 'stamp', textContent: '💬 ' + says});
+  talk.onclick = e => { e.stopPropagation(); openPhoto(p); };
+  return el('div', {className: 'stamps'}, s('🔥 ' + fire, 'fire'), s('👎 ' + nah, 'nah'), talk);
+}
+
+function renderWall() {
+  const wall = $('wall'); wall.replaceChildren();
+  photos.filter(p => !ripped.has(p.key)).forEach((p, i) => {
+    const note = el('figure', {className: 'note'});
+    note.style.setProperty('--paper', PAPER[i % PAPER.length]);
+    note.style.setProperty('--tilt', tilt(i));
+    const img = el('img', {src: p.src, alt: '', loading: 'lazy'});
+    img.onclick = () => openPhoto(p);
+    const x = el('button', {className: 'x', type: 'button', textContent: '×'});
+    x.setAttribute('aria-label', 'Rip off this note');
+    x.onclick = () => rip(note, p.key);
+    note.append(img, x, stampRow(p));
+    if (p.by && p.at > lastSeen) note.append(el('span', {className: 'new', textContent: 'new from ' + p.by}));
+    wall.append(note);
+  });
+  if (!wall.children.length) wall.append(el('p', {className: 'empty', textContent: 'Nothing on the board.'}));
+}
+
+function rip(note, key) {
+  ripped.add(key); localStorage.setItem(RIP_KEY, JSON.stringify([...ripped]));
   note.classList.add('rip');
   // Remove on a timer too: iPhone Safari doesn't always fire animationend, which left a sliver behind.
   let gone = false;
-  const done = () => { if (gone) return; gone = true; note.remove(); if (!wall.children.length) showEmpty(); };
+  const done = () => { if (gone) return; gone = true; note.remove(); };
   note.addEventListener('animationend', done, {once: true});
   setTimeout(done, 700);
 }
-function showEmpty() { wall.outerHTML = '<p class="empty" id="wall">Nothing on the board.</p>'; }
 
-(async () => {
-  let names = [];
-  try {
-    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/photos`);
-    if (r.ok) names = (await r.json()).filter(f => IMG.test(f.name)).map(f => f.name).sort();
-  } catch {}
-  names.filter(n => !ripped.has(n)).forEach((name, i) => {
-    const src = 'photos/' + encodeURIComponent(name);
-    const note = Object.assign(document.createElement('figure'), {className: 'note'});
-    note.style.setProperty('--paper', PAPER[i % PAPER.length]);
-    note.style.setProperty('--tilt', ((i * 37 % 7) - 3) + 'deg');
-    const img = Object.assign(document.createElement('img'), {src, alt: '', loading: 'lazy'});
-    img.onclick = () => { big.src = src; stage.classList.add('on'); };
-    const x = Object.assign(document.createElement('button'), {className: 'x', type: 'button', textContent: '×'});
-    x.setAttribute('aria-label', 'Rip off this note');
-    x.onclick = () => rip(note, name);
-    note.append(img, x);
-    wall.append(note);
+async function vote(src, kind) {
+  await needName();
+  const mine = reactions.find(r => r.pin_src === src && r.who === me);
+  if (mine?.kind === kind) await db.from('reactions').delete().match({pin_src: src, who: me});
+  else await db.from('reactions').upsert({pin_src: src, who: me, kind});
+  await loadFeedback(); renderWall(); if (open) renderTalk();
+}
+
+/* ---------- photo view ---------- */
+function openPhoto(p) { open = p; $('big').src = p.src; renderTalk(); $('stage').classList.add('on'); }
+function closePhoto() { open = null; $('stage').classList.remove('on'); $('big').removeAttribute('src'); }
+$('close').onclick = closePhoto;
+$('big').onclick = closePhoto;
+$('stage').onclick = e => { if (e.target === $('stage')) closePhoto(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && open) closePhoto(); });
+
+function renderTalk() {
+  const v = votesFor(open.src), mine = v.find(r => r.who === me)?.kind;
+  const b = (label, kind) => { const x = el('button', {type: 'button', className: 'stamp' + (mine === kind ? ' mine' : ''), textContent: label});
+    x.onclick = () => vote(open.src, kind); return x; };
+  $('votes').replaceChildren(b('🔥 keep', 'fire'), b('👎 cut', 'nah'));
+  const names = k => v.filter(r => r.kind === k).map(r => r.who).join(', ');
+  $('who').textContent = [names('fire') && '🔥 ' + names('fire'), names('nah') && '👎 ' + names('nah'), open.by && 'added by ' + open.by].filter(Boolean).join(' · ');
+  $('comments').replaceChildren(...talkFor(open.src).map(c => el('li', {}, el('b', {textContent: c.who + ':'}), c.body)));
+}
+$('say').onkeydown = async e => {
+  if (e.key !== 'Enter' || e.shiftKey) return;
+  e.preventDefault();
+  const body = $('say').value.trim(); if (!body || !open) return;
+  await needName();
+  const {error} = await db.from('comments').insert({pin_src: open.src, who: me, body: body.slice(0, 1000)});
+  if (error) return alert('Could not post that: ' + error.message);
+  $('say').value = ''; await loadFeedback(); renderTalk(); renderWall();
+};
+
+/* ---------- adding photos ---------- */
+const addMsg = t => { $('addMsg').textContent = t; };
+$('add').onclick = async () => { await needName(); addMsg(''); $('addDlg').showModal(); };
+$('addClose').onclick = () => $('addDlg').close();
+$('pick').onclick = () => $('files').click();
+$('files').onchange = async () => {
+  const files = [...$('files').files]; let n = 0;
+  for (const f of files) {
+    addMsg(`Uploading ${++n} of ${files.length}…`);
+    const ext = (f.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const up = await db.storage.from('pins').upload(path, f, {contentType: f.type || 'image/jpeg'});
+    if (up.error) { addMsg('Upload failed: ' + up.error.message); return; }
+    const src = db.storage.from('pins').getPublicUrl(path).data.publicUrl;
+    await db.from('pins').insert({src, added_by: me});
+  }
+  $('files').value = ''; addMsg(`Added ${files.length} photo${files.length === 1 ? '' : 's'}.`);
+  await loadPhotos(); renderWall();
+};
+$('linkOk').onclick = async () => {
+  const url = $('link').value.trim(); if (!url) return;
+  addMsg('Finding the image…');
+  const {data, error} = await db.functions.invoke('resolve-pin', {body: {url}});
+  if (error || !data?.image) { addMsg("Couldn't get an image from that link. Try saving the pic and uploading it."); return; }
+  await db.from('pins').insert({src: data.image, added_by: me});
+  $('link').value = ''; addMsg('Added. Paste another or tap Done.');
+  await loadPhotos(); renderWall();
+};
+$('link').onkeydown = e => { if (e.key === 'Enter') $('linkOk').click(); };
+
+/* ---------- plan ---------- */
+const money = n => '$' + Number(n).toFixed(Number(n) % 1 ? 2 : 0);
+function renderPlan() {
+  const wrap = $('plan'); wrap.replaceChildren();
+  SECTIONS.forEach(([key, title], i) => {
+    const items = plan.filter(p => p.section === key);
+    const sheet = el('section', {className: 'sheet'});
+    sheet.style.setProperty('--paper', PAPER[i % PAPER.length]);
+    sheet.style.setProperty('--tilt', (((i * 3) % 5) - 2) * .6 + 'deg');
+    const ul = el('ul');
+    for (const it of items) {
+      const cb = el('input', {type: 'checkbox', checked: it.done});
+      cb.setAttribute('aria-label', 'Done');
+      cb.onchange = () => editPlan(it.id, {done: cb.checked});
+      const del = el('button', {type: 'button', className: 'del', textContent: '×'});
+      del.setAttribute('aria-label', 'Remove');
+      del.onclick = () => { if (confirm('Remove "' + it.body + '"?')) removePlan(it.id); };
+      const text = el('span', {}, it.body);
+      if (it.who && it.who !== me) text.append(' ', el('small', {textContent: '— ' + it.who}));
+      const li = el('li', {className: it.done ? 'done' : ''}, cb, text);
+      if (key === 'budget' && it.amount != null) li.append(el('span', {className: 'amt', textContent: money(it.amount)}));
+      li.append(del);
+      ul.append(li);
+    }
+    const input = el('input', {type: 'text', placeholder: 'Add…', maxLength: 500});
+    const amt = el('input', {type: 'number', placeholder: '$', min: 0, step: '0.01', className: 'money'});
+    const go = el('button', {type: 'button', textContent: 'Add'});
+    const submit = async () => {
+      const body = input.value.trim(); if (!body) return;
+      await needName();
+      await db.from('plan_items').insert({section: key, body, who: me, amount: key === 'budget' && amt.value !== '' ? Number(amt.value) : null});
+      await loadPlan(); renderPlan();
+    };
+    go.onclick = submit; input.onkeydown = e => { if (e.key === 'Enter') submit(); };
+    const row = el('div', {className: 'addrow'}, input); if (key === 'budget') row.append(amt); row.append(go);
+    sheet.append(el('h2', {textContent: title}), ul, row);
+    if (key === 'budget') {
+      const total = items.reduce((s, it) => s + Number(it.amount || 0), 0);
+      sheet.append(el('div', {className: 'total', textContent: 'Total: ' + money(total)}));
+    }
+    wrap.append(sheet);
   });
-  if (!wall.children.length) showEmpty();
-})();
+}
+async function editPlan(id, patch) { await db.from('plan_items').update(patch).eq('id', id); await loadPlan(); renderPlan(); }
+async function removePlan(id) { await db.from('plan_items').delete().eq('id', id); await loadPlan(); renderPlan(); }
+
+/* ---------- start, and pick up the other person's changes when you come back to the tab ---------- */
+async function refresh() {
+  await Promise.all([loadPhotos(), loadFeedback(), loadPlan()]);
+  renderWall(); renderPlan(); if (open) renderTalk();
+}
+refresh().then(() => localStorage.setItem(SEEN_KEY, new Date().toISOString()));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+if (location.hash === '#plan') show('plan');
 </script>
 </body>
 </html>
